@@ -11,6 +11,25 @@
 #define FLARM_STATE_CHKS 0x03
 
 static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAU(uint32_t lID);
+static void Flarm_PFLAA(uint32_t lID);
+static void Flarm_PFLAE(uint32_t lID);
+static void Flarm_PFLAV(uint32_t lID);
+static void Flarm_PFLAR(uint32_t lID);
+static void Flarm_GPRMC(uint32_t lID);
+static void Flarm_GPGGA(uint32_t lID);
+static void Flarm_GPGSA(uint32_t lID);
+static void Flarm_GPTXT(uint32_t lID);
+static void Flarm_PGRMZ(uint32_t lID);
+static void Flarm_PFLAS(uint32_t lID);
+static void Flarm_PFLAQ(uint32_t lID);
+static void Flarm_PFLAO(uint32_t lID);
+static void Flarm_PFLAI(uint32_t lID);
+static void Flarm_PFLAC(uint32_t lID);
+static void Flarm_PFLAJ(uint32_t lID);
+static void Flarm_PFLAB(uint32_t lID);
+static void Flarm_PFLAF(uint32_t lID);
+static void Flarm_PFLAL(uint32_t lID);
 
 void Flarm_Init(struct sdfFlarm* psdcFlarm, uint32_t lID)
 {
@@ -95,6 +114,205 @@ void Flarm_RXProcess(struct sdfFlarm* psdcFlarm, uint8_t* pcData, uint32_t lLeng
 
 static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
-    _Flarm_Sentence(lID, pcData, lLength);
+    char token = strtok(pcData, ",");
+    
+    if(token)
+    {
+        switch(token[0])
+        {
+            case 'P': //P
+            {
+                switch(token[1])
+                {
+                    case 'F': //PF
+                    {
+                        if('L' == token[2]) //PFL
+                        {
+                            if('A' == token[3]) //PFLA
+                            {
+                                switch(token[4])
+                                {
+                                    case 'U': Flarm_PFLAU(lID); break;
+                                    case 'A': Flarm_PFLAA(lID); break;
+                                    case 'E': Flarm_PFLAE(lID); break;
+                                    case 'V': Flarm_PFLAV(lID); break;
+                                    case 'R': Flarm_PFLAR(lID); break;
+                                    case 'S': Flarm_PFLAS(lID); break;
+                                    case 'Q': Flarm_PFLAQ(lID); break;
+                                    case 'O': Flarm_PFLAO(lID); break;
+                                    case 'I': Flarm_PFLAI(lID); break;
+                                    case 'C': Flarm_PFLAC(lID); break;
+                                    case 'J': Flarm_PFLAJ(lID); break;
+                                    case 'B': Flarm_PFLAB(lID); break;
+                                    case 'F': Flarm_PFLAF(lID); break;
+                                    case 'L': Flarm_PFLAL(lID); break;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    
+                    case 'G': //PG
+                    {
+                        if(0 == strcmp("RMZ", &token[2]))
+                        {
+                            Flarm_PGRMZ(lID);
+                        }
+                    }
+                    break;
+                }
+            }
+            break;
+            
+            case 'G': //G
+            {
+                if('P' == token[1]) //GP
+                {
+                    switch(token[2])
+                    {
+                        case 'R': //GPR
+                        {
+                            if(0 == strcmp("MC", &token[3]))
+                            {
+                                Flarm_GPRMC(lID);
+                            }
+                        }
+                        break;
+                        
+                        case 'G': //GPG
+                        {
+                            switch(token[3])
+                            {
+                                case 'G': //GPGG
+                                {
+                                    if('A' == token[4])
+                                    {
+                                        Flarm_GPGGA(lID);
+                                    }
+                                }
+                                break;
+                                
+                                case 'S': //GPGS
+                                {
+                                    if('A' == token[4])
+                                    {
+                                        Flarm_GPGSA(lID);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                        
+                        case 'T': //GPT
+                        {
+                            if(0 == strcmp("XT", &token[3]))
+                            {
+                                Flarm_GPTXT(lID);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+    }
+}
+
+
+static void Flarm_PFLAU(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAA(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAE(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAV(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAR(uint32_t lID)
+{
+    
+}
+
+static void Flarm_GPRMC(uint32_t lID)
+{
+    
+}
+
+static void Flarm_GPGGA(uint32_t lID)
+{
+    
+}
+
+static void Flarm_GPGSA(uint32_t lID)
+{
+    
+}
+
+static void Flarm_GPTXT(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PGRMZ(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAS(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAQ(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAO(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAI(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAC(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAJ(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAB(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAF(uint32_t lID)
+{
+    
+}
+
+static void Flarm_PFLAL(uint32_t lID)
+{
+    
 }
 

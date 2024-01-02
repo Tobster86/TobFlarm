@@ -9,7 +9,25 @@
 #define NMEA_MAX_LENGTH 80
 #define NMEA_CS_CHARS   2
 
-extern void _Flarm_Sentence(uint32_t lFlarmID, uint8_t* message, uint32_t lLength);
+extern void _Flarm_PFLAU();
+extern void _Flarm_PFLAA();
+extern void _Flarm_PFLAE();
+extern void _Flarm_PFLAV();
+extern void _Flarm_PFLAR();
+extern void _Flarm_GPRMC();
+extern void _Flarm_GPGGA();
+extern void _Flarm_GPGSA();
+extern void _Flarm_GPTXT();
+extern void _Flarm_PGRMZ();
+extern void _Flarm_PFLAS();
+extern void _Flarm_PFLAQ();
+extern void _Flarm_PFLAO();
+extern void _Flarm_PFLAI();
+extern void _Flarm_PFLAC();
+extern void _Flarm_PFLAJ();
+extern void _Flarm_PFLAB();
+extern void _Flarm_PFLAF();
+extern void _Flarm_PFLAL();
 
 struct sdfFlarm
 {
