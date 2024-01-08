@@ -10,6 +10,18 @@
 #define FLARM_STATE_BUFF 0x02
 #define FLARM_STATE_CHKS 0x03
 
+#define NEXT_TOKEN strtok(NULL, ",");
+
+#define GET_INT(pTX) strtol((pTX), NULL, 10);
+#define GET_BOOL(pTX) strtol((pTX), NULL, 10);
+#define GET_UINT8(pTX) strtol((pTX), NULL, 10);
+#define GET_UINT8_FROM_HEX(pTX) strtol((pTX), NULL, 16);
+#define GET_UINT16(pTX) strtol((pTX), NULL, 10);
+#define GET_INT16(pTX) strtol((pTX), NULL, 10);
+#define GET_UINT32(pTX) strtol((pTX), NULL, 10);
+#define GET_INT32(pTX) strtol((pTX), NULL, 10);
+#define GET_FLOAT(pTX) strtof((pTX), NULL);
+
 static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAU(uint32_t lID);
 static void Flarm_PFLAA(uint32_t lID);
@@ -114,7 +126,7 @@ void Flarm_RXProcess(struct sdfFlarm* psdcFlarm, uint8_t* pcData, uint32_t lLeng
 
 static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
-    char token = strtok(pcData, ",");
+    char* token = strtok(pcData, ",");
     
     if(token)
     {
@@ -133,7 +145,11 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                                 switch(token[4])
                                 {
                                     case 'U': Flarm_PFLAU(lID); break;
+                                            
+#ifndef FLARM_PLFAA_DISABLED
                                     case 'A': Flarm_PFLAA(lID); break;
+#endif
+                                    
                                     case 'E': Flarm_PFLAE(lID); break;
                                     case 'V': Flarm_PFLAV(lID); break;
                                     case 'R': Flarm_PFLAR(lID); break;
@@ -220,16 +236,162 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
     }
 }
 
-
 static void Flarm_PFLAU(uint32_t lID)
 {
+    char* pRX = NEXT_TOKEN;
     
+    if(pRX)
+    {
+        char* pTX = NEXT_TOKEN;
+        
+        if(pTX)
+        {
+            char* pGPS = NEXT_TOKEN;
+            
+            if(pGPS)
+            {
+                char* pPower = NEXT_TOKEN;
+                
+                if(pPower)
+                {
+                    char* pAlarmLevel = NEXT_TOKEN;
+                    
+                    if(pAlarmLevel)
+                    {
+                        char* pRelativeBearing = NEXT_TOKEN;
+                        
+                        if(pRelativeBearing)
+                        {
+                            char* pAlarmType = NEXT_TOKEN;
+                            
+                            if(pAlarmType)
+                            {
+                                char* pRelativeVertical = NEXT_TOKEN;
+                                
+                                if(pRelativeVertical)
+                                {
+                                    char* pRelativeDistance = NEXT_TOKEN;
+                                    
+                                    if(pRelativeDistance)
+                                    {
+                                        uint8_t cContacts = GET_UINT8(pRX);
+                                        bool bTXOk = GET_BOOL(pTX);
+                                        uint8_t cGPSStatus = GET_UINT8(pGPS);
+                                        bool bPowerOk = GET_BOOL(pPower);
+                                        uint8_t cAlarmLevel = GET_UINT8(pAlarmLevel);
+                                        int16_t snRelativeBearing = GET_INT16(pRelativeBearing);
+                                        uint8_t cAlarmType = GET_UINT8(pAlarmType);
+                                        int16_t snRelativeVertical = GET_INT16(pRelativeVertical);
+                                        uint32_t lRelativeDistance = GET_UINT32(pRelativeDistance);
+                                        
+                                        _Flarm_PFLAU(lID,
+                                                     cContacts,
+                                                     bTXOk,
+                                                     cGPSStatus,
+                                                     bPowerOk,
+                                                     cAlarmLevel,
+                                                     snRelativeBearing,
+                                                     cAlarmType,
+                                                     snRelativeVertical,
+                                                     lRelativeDistance);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
+#ifndef FLARM_PLFAA_DISABLED
 static void Flarm_PFLAA(uint32_t lID)
 {
+    char* pAlarmLevel = NEXT_TOKEN;
     
+    if(pAlarmLevel)
+    {
+        char* pRelativeNorth = NEXT_TOKEN;
+        
+        if(pRelativeNorth)
+        {
+            char* pRelativeEast = NEXT_TOKEN;
+            
+            if(pRelativeEast)
+            {
+                char* pRelativeVertical = NEXT_TOKEN;
+                
+                if(pRelativeVertical)
+                {
+                    char* pIDType = NEXT_TOKEN;
+                    
+                    if(pIDType)
+                    {
+                        char* pHexID = NEXT_TOKEN;
+                        
+                        if(pHexID)
+                        {
+                            char* pTrack = NEXT_TOKEN;
+                            
+                            if(pTrack)
+                            {
+                                char* pTurnRate = NEXT_TOKEN;
+                                
+                                if(pTurnRate)
+                                {
+                                    char* pGroundSpeed = NEXT_TOKEN;
+                                    
+                                    if(pGroundSpeed)
+                                    {
+                                        char* pClimbRate = NEXT_TOKEN;
+                                        
+                                        if(pClimbRate)
+                                        {
+                                            char* pAircraftType = NEXT_TOKEN;
+                                            
+                                            if(pAircraftType)
+                                            {
+                                                /* Data port version 8 & 9 only items, check seperately */
+                                                char* pNoTrack = NEXT_TOKEN;
+                                                char* pSource = NEXT_TOKEN;
+                                                char* pRSSI = NEXT_TOKEN;
+                                                
+                                                uint8_t cAlarmLevel = GET_UINT8(pAlarmLevel);
+                                                int32_t slRelativeNorth = GET_INT32(pRelativeNorth);
+                                                int32_t slRelativeEast = GET_INT32(pRelativeEast);
+                                                int16_t snRelativeVertical = GET_INT16(pRelativeVertical);
+                                                uint8_t cIDType = GET_UINT8(pIDType);
+                                                /*(Just pass the raw hex ID)*/
+                                                uint16_t nTrack = GET_UINT16(pTrack);
+                                                /*(As of 2022/06/06, turn rate is empty)*/
+                                                uint16_t nGroundSpeed = GET_UINT16(pGroundSpeed);
+                                                float fltClimbRate = GET_FLOAT(pClimbRate); /* TO DO: For performance, bin decimal and use int (x10)? */
+                                                uint8_t cAircraftType = GET_UINT8_FROM_HEX(pAircraftType);
+                                                
+                                                _Flarm_PFLAA(lID,
+                                                             cAlarmLevel,
+                                                             slRelativeNorth,
+                                                             slRelativeEast,
+                                                             snRelativeVertical,
+                                                             cIDType,
+                                                             nTrack,
+                                                             nGroundSpeed,
+                                                             fltClimbRate,
+                                                             cAircraftType);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+#endif
 
 static void Flarm_PFLAE(uint32_t lID)
 {
