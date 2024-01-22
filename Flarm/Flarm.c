@@ -19,21 +19,13 @@ static void Flarm_PFLAA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 
 static void Flarm_PFLAE(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAR(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_GPTXT(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAS(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAQ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAO(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAI(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAC(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAJ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAB(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAF(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAL(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 
 static long Flarm_GetInt(uint8_t* pcData)
 {
@@ -231,16 +223,9 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                                     
                                     case 'E': Flarm_PFLAE(lID, pcData, lLength); break;
                                     case 'V': Flarm_PFLAV(lID, pcData, lLength); break;
-                                    case 'R': Flarm_PFLAR(lID, pcData, lLength); break;
-                                    case 'S': Flarm_PFLAS(lID, pcData, lLength); break;
                                     case 'Q': Flarm_PFLAQ(lID, pcData, lLength); break;
                                     case 'O': Flarm_PFLAO(lID, pcData, lLength); break;
-                                    case 'I': Flarm_PFLAI(lID, pcData, lLength); break;
-                                    case 'C': Flarm_PFLAC(lID, pcData, lLength); break;
-                                    case 'J': Flarm_PFLAJ(lID, pcData, lLength); break;
                                     case 'B': Flarm_PFLAB(lID, pcData, lLength); break;
-                                    case 'F': Flarm_PFLAF(lID, pcData, lLength); break;
-                                    case 'L': Flarm_PFLAL(lID, pcData, lLength); break;
                                 }
                             }
                         }
@@ -295,15 +280,6 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                                     }
                                 }
                                 break;
-                            }
-                        }
-                        break;
-                        
-                        case 'T': //GPT
-                        {
-                            if(0 == strcmp("XT", (char*)&pcData[3]))
-                            {
-                                Flarm_GPTXT(lID, pcData, lLength);
                             }
                         }
                         break;
@@ -455,11 +431,6 @@ static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength)
     
 }
 
-static void Flarm_PFLAR(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
 static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
@@ -475,17 +446,7 @@ static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
     
 }
 
-static void Flarm_GPTXT(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
 static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
-static void Flarm_PFLAS(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
@@ -500,32 +461,7 @@ static void Flarm_PFLAO(uint32_t lID, uint8_t* pcData, uint32_t lLength)
     
 }
 
-static void Flarm_PFLAI(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
-static void Flarm_PFLAC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
-static void Flarm_PFLAJ(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
 static void Flarm_PFLAB(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
-static void Flarm_PFLAF(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
-}
-
-static void Flarm_PFLAL(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }

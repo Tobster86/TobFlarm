@@ -118,11 +118,6 @@ void _Flarm_PFLAV(uint32_t lID)
     printf("PFLAV\n");
 }
 
-void _Flarm_PFLAR(uint32_t lID)
-{
-    printf("PFLAR\n");
-}
-
 void _Flarm_GPRMC(uint32_t lID)
 {
     printf("GPRMC\n");
@@ -138,19 +133,9 @@ void _Flarm_GPGSA(uint32_t lID)
     printf("GPGSA\n");
 }
 
-void _Flarm_GPTXT(uint32_t lID)
-{
-    printf("GPTXT\n");
-}
-
 void _Flarm_PGRMZ(uint32_t lID)
 {
     printf("PGRMZ\n");
-}
-
-void _Flarm_PFLAS(uint32_t lID)
-{
-    printf("PFLAS\n");
 }
 
 void _Flarm_PFLAQ(uint32_t lID)
@@ -163,33 +148,8 @@ void _Flarm_PFLAO(uint32_t lID)
     printf("PFLAO\n");
 }
 
-void _Flarm_PFLAI(uint32_t lID)
-{
-    printf("PFLAI\n");
-}
-
-void _Flarm_PFLAC(uint32_t lID)
-{
-    printf("PFLAC\n");
-}
-
-void _Flarm_PFLAJ(uint32_t lID)
-{
-    printf("PFLAJ\n");
-}
-
 void _Flarm_PFLAB(uint32_t lID)
 {
     printf("PFLAB\n");
-}
-
-void _Flarm_PFLAF(uint32_t lID)
-{
-    printf("PFLAF\n");
-}
-
-void _Flarm_PFLAL(uint32_t lID)
-{
-    printf("PFLAL\n");
 }
 

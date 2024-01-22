@@ -84,21 +84,13 @@ extern void _Flarm_PFLAA(uint32_t lID,
 
 extern void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t* pcMessage);
 extern void _Flarm_PFLAV(uint32_t lID);
-extern void _Flarm_PFLAR(uint32_t lID);
 extern void _Flarm_GPRMC(uint32_t lID);
 extern void _Flarm_GPGGA(uint32_t lID);
 extern void _Flarm_GPGSA(uint32_t lID);
-extern void _Flarm_GPTXT(uint32_t lID);
 extern void _Flarm_PGRMZ(uint32_t lID);
-extern void _Flarm_PFLAS(uint32_t lID);
 extern void _Flarm_PFLAQ(uint32_t lID);
 extern void _Flarm_PFLAO(uint32_t lID);
-extern void _Flarm_PFLAI(uint32_t lID);
-extern void _Flarm_PFLAC(uint32_t lID);
-extern void _Flarm_PFLAJ(uint32_t lID);
 extern void _Flarm_PFLAB(uint32_t lID);
-extern void _Flarm_PFLAF(uint32_t lID);
-extern void _Flarm_PFLAL(uint32_t lID);
 
 struct sdfFlarm
 {
