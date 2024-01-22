@@ -10,38 +10,117 @@
 #define FLARM_STATE_BUFF 0x02
 #define FLARM_STATE_CHKS 0x03
 
-#define NEXT_TOKEN strtok(NULL, ",");
-
-#define GET_INT(pTX) strtol((pTX), NULL, 10);
-#define GET_BOOL(pTX) strtol((pTX), NULL, 10);
-#define GET_UINT8(pTX) strtol((pTX), NULL, 10);
-#define GET_UINT8_FROM_HEX(pTX) strtol((pTX), NULL, 16);
-#define GET_UINT16(pTX) strtol((pTX), NULL, 10);
-#define GET_INT16(pTX) strtol((pTX), NULL, 10);
-#define GET_UINT32(pTX) strtol((pTX), NULL, 10);
-#define GET_INT32(pTX) strtol((pTX), NULL, 10);
-#define GET_FLOAT(pTX) strtof((pTX), NULL);
-
 static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAU(uint32_t lID);
-static void Flarm_PFLAA(uint32_t lID);
-static void Flarm_PFLAE(uint32_t lID);
-static void Flarm_PFLAV(uint32_t lID);
-static void Flarm_PFLAR(uint32_t lID);
-static void Flarm_GPRMC(uint32_t lID);
-static void Flarm_GPGGA(uint32_t lID);
-static void Flarm_GPGSA(uint32_t lID);
-static void Flarm_GPTXT(uint32_t lID);
-static void Flarm_PGRMZ(uint32_t lID);
-static void Flarm_PFLAS(uint32_t lID);
-static void Flarm_PFLAQ(uint32_t lID);
-static void Flarm_PFLAO(uint32_t lID);
-static void Flarm_PFLAI(uint32_t lID);
-static void Flarm_PFLAC(uint32_t lID);
-static void Flarm_PFLAJ(uint32_t lID);
-static void Flarm_PFLAB(uint32_t lID);
-static void Flarm_PFLAF(uint32_t lID);
-static void Flarm_PFLAL(uint32_t lID);
+static void Flarm_PFLAU(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+
+#ifndef FLARM_PLFAA_DISABLED
+static void Flarm_PFLAA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+#endif
+
+static void Flarm_PFLAE(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAR(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_GPTXT(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAS(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAQ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAO(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAI(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAC(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAJ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAB(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAF(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+static void Flarm_PFLAL(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+
+static long Flarm_GetInt(uint8_t* pcData)
+{
+    if(pcData)
+        return strtol((char*)pcData, NULL, 10);
+        
+    return 0;
+}
+
+static long Flarm_GetIntFromHex(uint8_t* pcData)
+{
+    if(pcData)
+        return strtoul((char*)pcData, NULL, 16);
+        
+    return 0;
+}
+
+static float Flarm_GetDecimal(uint8_t* pcData)
+{
+    if(pcData)
+        return strtof((char*)pcData, NULL);
+        
+    return 0.0f;
+}
+
+static uint32_t Flarm_GetTokens(uint8_t* pcString,
+                                uint32_t lLength,
+                                uint8_t* Token[],
+                                bool HasContent[],
+                                uint32_t lMaxTokens)
+{
+    static const char cDelimiter = ',';
+    uint32_t lCharIndex = 0;
+    uint32_t lTokenCounter = 0;
+    uint32_t lTokenLength = 0;
+    uint8_t* pcTokenStart = pcString;
+    
+    while(lCharIndex < lLength)
+    {
+        if(cDelimiter == pcString[lCharIndex])
+        {
+            if(lTokenLength > 0)
+            {
+                Token[lTokenCounter] = pcTokenStart;
+                HasContent[lTokenCounter] = true;
+            }
+            else
+            {
+                Token[lTokenCounter] = NULL;
+                HasContent[lTokenCounter] = false;
+            }
+            
+            pcString[lCharIndex] = '\0';
+            
+            //printf("Token: %s\n", pcTokenStart);
+            
+            lTokenCounter++;
+            pcTokenStart = &pcString[lCharIndex + 1];
+            
+            if(lMaxTokens == lTokenCounter)
+            {
+                break;
+            }
+
+            lTokenLength = 0;
+        }
+        else
+        {
+            lTokenLength++;
+        }
+    
+        lCharIndex++;
+    }
+    
+    if(lTokenCounter < lMaxTokens)
+    {
+        //Assign any remaining token slots as empty.
+        for(int i = lTokenCounter; i < lMaxTokens; i++)
+        {
+            //printf("Unoccupied: %d\n", i);
+            Token[i] = NULL;
+            HasContent[i] = false;
+        }
+    }
+    
+    return lTokenCounter;
+}
 
 void Flarm_Init(struct sdfFlarm* psdcFlarm, uint32_t lID)
 {
@@ -99,12 +178,12 @@ void Flarm_RXProcess(struct sdfFlarm* psdcFlarm, uint8_t* pcData, uint32_t lLeng
                     {
                         psdcFlarm->cChecksumStored[psdcFlarm->lCSIdx++] = pcData[i];
                         
-                        if(NMEA_CS_CHARS >= psdcFlarm->lCSIdx)
+                        if(NMEA_CS_CHARS <= psdcFlarm->lCSIdx)
                         {
-                            char checksum[NMEA_CS_CHARS];
-                            snprintf(checksum, NMEA_CS_CHARS, "%02X", psdcFlarm->cChecksumCalced);
+                            psdcFlarm->cChecksumStored[NMEA_CS_CHARS] = '\0';
+                            uint8_t cChecksum = (uint8_t)Flarm_GetIntFromHex(psdcFlarm->cChecksumStored);
                             
-                            if(0 == memcmp(psdcFlarm->cChecksumStored, checksum, NMEA_CS_CHARS))
+                            if(cChecksum == psdcFlarm->cChecksumCalced)
                             {
                                 Flarm_Interpret(psdcFlarm->lID, psdcFlarm->buffer, psdcFlarm->lBufIdx);
                             }
@@ -126,42 +205,42 @@ void Flarm_RXProcess(struct sdfFlarm* psdcFlarm, uint8_t* pcData, uint32_t lLeng
 
 static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
-    char* token = strtok(pcData, ",");
+    //printf("%.*s\n", lLength, pcData);
     
-    if(token)
+    if(lLength > 0)
     {
-        switch(token[0])
+        switch(pcData[0])
         {
             case 'P': //P
             {
-                switch(token[1])
+                switch(pcData[1])
                 {
                     case 'F': //PF
                     {
-                        if('L' == token[2]) //PFL
+                        if('L' == pcData[2]) //PFL
                         {
-                            if('A' == token[3]) //PFLA
+                            if('A' == pcData[3]) //PFLA
                             {
-                                switch(token[4])
+                                switch(pcData[4])
                                 {
-                                    case 'U': Flarm_PFLAU(lID); break;
+                                    case 'U': Flarm_PFLAU(lID, pcData, lLength); break;
                                             
-#ifndef FLARM_PLFAA_DISABLED
-                                    case 'A': Flarm_PFLAA(lID); break;
+#ifndef FLARM_PFLAA_DISABLED
+                                    case 'A': Flarm_PFLAA(lID, pcData, lLength); break;
 #endif
                                     
-                                    case 'E': Flarm_PFLAE(lID); break;
-                                    case 'V': Flarm_PFLAV(lID); break;
-                                    case 'R': Flarm_PFLAR(lID); break;
-                                    case 'S': Flarm_PFLAS(lID); break;
-                                    case 'Q': Flarm_PFLAQ(lID); break;
-                                    case 'O': Flarm_PFLAO(lID); break;
-                                    case 'I': Flarm_PFLAI(lID); break;
-                                    case 'C': Flarm_PFLAC(lID); break;
-                                    case 'J': Flarm_PFLAJ(lID); break;
-                                    case 'B': Flarm_PFLAB(lID); break;
-                                    case 'F': Flarm_PFLAF(lID); break;
-                                    case 'L': Flarm_PFLAL(lID); break;
+                                    case 'E': Flarm_PFLAE(lID, pcData, lLength); break;
+                                    case 'V': Flarm_PFLAV(lID, pcData, lLength); break;
+                                    case 'R': Flarm_PFLAR(lID, pcData, lLength); break;
+                                    case 'S': Flarm_PFLAS(lID, pcData, lLength); break;
+                                    case 'Q': Flarm_PFLAQ(lID, pcData, lLength); break;
+                                    case 'O': Flarm_PFLAO(lID, pcData, lLength); break;
+                                    case 'I': Flarm_PFLAI(lID, pcData, lLength); break;
+                                    case 'C': Flarm_PFLAC(lID, pcData, lLength); break;
+                                    case 'J': Flarm_PFLAJ(lID, pcData, lLength); break;
+                                    case 'B': Flarm_PFLAB(lID, pcData, lLength); break;
+                                    case 'F': Flarm_PFLAF(lID, pcData, lLength); break;
+                                    case 'L': Flarm_PFLAL(lID, pcData, lLength); break;
                                 }
                             }
                         }
@@ -170,9 +249,9 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                     
                     case 'G': //PG
                     {
-                        if(0 == strcmp("RMZ", &token[2]))
+                        if(0 == strcmp("RMZ", (char*)&pcData[2]))
                         {
-                            Flarm_PGRMZ(lID);
+                            Flarm_PGRMZ(lID, pcData, lLength);
                         }
                     }
                     break;
@@ -182,37 +261,37 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
             
             case 'G': //G
             {
-                if('P' == token[1]) //GP
+                if('P' == pcData[1]) //GP
                 {
-                    switch(token[2])
+                    switch(pcData[2])
                     {
                         case 'R': //GPR
                         {
-                            if(0 == strcmp("MC", &token[3]))
+                            if(0 == strcmp("MC", (char*)&pcData[3]))
                             {
-                                Flarm_GPRMC(lID);
+                                Flarm_GPRMC(lID, pcData, lLength);
                             }
                         }
                         break;
                         
                         case 'G': //GPG
                         {
-                            switch(token[3])
+                            switch(pcData[3])
                             {
                                 case 'G': //GPGG
                                 {
-                                    if('A' == token[4])
+                                    if('A' == pcData[4])
                                     {
-                                        Flarm_GPGGA(lID);
+                                        Flarm_GPGGA(lID, pcData, lLength);
                                     }
                                 }
                                 break;
                                 
                                 case 'S': //GPGS
                                 {
-                                    if('A' == token[4])
+                                    if('A' == pcData[4])
                                     {
-                                        Flarm_GPGSA(lID);
+                                        Flarm_GPGSA(lID, pcData, lLength);
                                     }
                                 }
                                 break;
@@ -222,9 +301,9 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                         
                         case 'T': //GPT
                         {
-                            if(0 == strcmp("XT", &token[3]))
+                            if(0 == strcmp("XT", (char*)&pcData[3]))
                             {
-                                Flarm_GPTXT(lID);
+                                Flarm_GPTXT(lID, pcData, lLength);
                             }
                         }
                         break;
@@ -236,244 +315,217 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
     }
 }
 
-static void Flarm_PFLAU(uint32_t lID)
+enum
 {
-    char* pRX = NEXT_TOKEN;
+    PFLAU_RX = 0,
+    PFLAU_TX,
+    PFLAU_GPS,
+    PFLAU_POWER,
+    PFLAU_ALARM_LEVEL,
+    PFLAU_RELATIVE_BEARING,
+    PFLAU_ALARM_TYPE,
+    PFLAU_RELATIVE_VERTICAL,
+    PFLAU_RELATIVE_DISTANCE,
+    PFLAU_LENGTH
+};
+
+static void Flarm_PFLAU(uint32_t lID, uint8_t* pcData, uint32_t lLength)
+{
+    uint8_t* Tokens[PFLAU_LENGTH];
+    bool Contents[PFLAU_LENGTH];
     
-    if(pRX)
-    {
-        char* pTX = NEXT_TOKEN;
-        
-        if(pTX)
-        {
-            char* pGPS = NEXT_TOKEN;
-            
-            if(pGPS)
-            {
-                char* pPower = NEXT_TOKEN;
-                
-                if(pPower)
-                {
-                    char* pAlarmLevel = NEXT_TOKEN;
-                    
-                    if(pAlarmLevel)
-                    {
-                        char* pRelativeBearing = NEXT_TOKEN;
-                        
-                        if(pRelativeBearing)
-                        {
-                            char* pAlarmType = NEXT_TOKEN;
-                            
-                            if(pAlarmType)
-                            {
-                                char* pRelativeVertical = NEXT_TOKEN;
-                                
-                                if(pRelativeVertical)
-                                {
-                                    char* pRelativeDistance = NEXT_TOKEN;
-                                    
-                                    if(pRelativeDistance)
-                                    {
-                                        uint8_t cContacts = GET_UINT8(pRX);
-                                        bool bTXOk = GET_BOOL(pTX);
-                                        uint8_t cGPSStatus = GET_UINT8(pGPS);
-                                        bool bPowerOk = GET_BOOL(pPower);
-                                        uint8_t cAlarmLevel = GET_UINT8(pAlarmLevel);
-                                        int16_t snRelativeBearing = GET_INT16(pRelativeBearing);
-                                        uint8_t cAlarmType = GET_UINT8(pAlarmType);
-                                        int16_t snRelativeVertical = GET_INT16(pRelativeVertical);
-                                        uint32_t lRelativeDistance = GET_UINT32(pRelativeDistance);
-                                        
-                                        _Flarm_PFLAU(lID,
-                                                     cContacts,
-                                                     bTXOk,
-                                                     cGPSStatus,
-                                                     bPowerOk,
-                                                     cAlarmLevel,
-                                                     snRelativeBearing,
-                                                     cAlarmType,
-                                                     snRelativeVertical,
-                                                     lRelativeDistance);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    PFLAU_LENGTH);
+
+    uint8_t cContacts = (uint8_t)Flarm_GetInt(Tokens[PFLAU_RX]);
+    bool bTXOk = (bool)Flarm_GetInt(Tokens[PFLAU_TX]);
+    uint8_t cGPSStatus = (uint8_t)Flarm_GetInt(Tokens[PFLAU_GPS]);
+    bool bPowerOk = (bool)Flarm_GetInt(Tokens[PFLAU_POWER]);
+    uint8_t cAlarmLevel = (uint8_t)Flarm_GetInt(Tokens[PFLAU_ALARM_LEVEL]);
+    int16_t snRelativeBearing = (int16_t)Flarm_GetInt(Tokens[PFLAU_RELATIVE_BEARING]);
+    uint8_t cAlarmType = (uint8_t)Flarm_GetInt(Tokens[PFLAU_ALARM_TYPE]);
+    int16_t snRelativeVertical = (int16_t)Flarm_GetInt(Tokens[PFLAU_RELATIVE_VERTICAL]);
+    uint32_t lRelativeDistance = (uint32_t)Flarm_GetInt(Tokens[PFLAU_RELATIVE_DISTANCE]);
+
+    _Flarm_PFLAU(lID,
+                 cContacts,
+                 bTXOk,
+                 cGPSStatus,
+                 bPowerOk,
+                 cAlarmLevel,
+                 snRelativeBearing,
+                 cAlarmType,
+                 snRelativeVertical,
+                 lRelativeDistance);
 }
 
 #ifndef FLARM_PLFAA_DISABLED
-static void Flarm_PFLAA(uint32_t lID)
+enum
 {
-    char* pAlarmLevel = NEXT_TOKEN;
+    PFLAA_ALARM_LEVEL = 0,
+    PFLAA_RELATIVE_NORTH,
+    PFLAA_RELATIVE_EAST,
+    PFLAA_RELATIVE_VERTICAL,
+    PFLAA_ID_TYPE,
+    PFLAA_HEX_ID,
+    PFLAA_TRACK,
+    PFLAA_TURN_RATE,
+    PFLAA_GROUND_SPEED,
+    PFLAA_CLIMB_RATE,
+    PFLAA_AIRCRAFT_TYPE,
+    /* Data port version 8 & 9 only items */
+    PFLAA_NO_TRACK,
+    PFLAA_SOURCE,
+    PFLAA_RSSI,
+    PFLAA_LENGTH
+};
+
+static void Flarm_PFLAA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
+{
+    uint8_t* Tokens[PFLAA_LENGTH];
+    bool Contents[PFLAA_LENGTH];
     
-    if(pAlarmLevel)
-    {
-        char* pRelativeNorth = NEXT_TOKEN;
-        
-        if(pRelativeNorth)
-        {
-            char* pRelativeEast = NEXT_TOKEN;
-            
-            if(pRelativeEast)
-            {
-                char* pRelativeVertical = NEXT_TOKEN;
-                
-                if(pRelativeVertical)
-                {
-                    char* pIDType = NEXT_TOKEN;
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    PFLAA_LENGTH);
                     
-                    if(pIDType)
-                    {
-                        char* pHexID = NEXT_TOKEN;
-                        
-                        if(pHexID)
-                        {
-                            char* pTrack = NEXT_TOKEN;
-                            
-                            if(pTrack)
-                            {
-                                char* pTurnRate = NEXT_TOKEN;
-                                
-                                if(pTurnRate)
-                                {
-                                    char* pGroundSpeed = NEXT_TOKEN;
-                                    
-                                    if(pGroundSpeed)
-                                    {
-                                        char* pClimbRate = NEXT_TOKEN;
-                                        
-                                        if(pClimbRate)
-                                        {
-                                            char* pAircraftType = NEXT_TOKEN;
-                                            
-                                            if(pAircraftType)
-                                            {
-                                                /* Data port version 8 & 9 only items, check seperately */
-                                                char* pNoTrack = NEXT_TOKEN;
-                                                char* pSource = NEXT_TOKEN;
-                                                char* pRSSI = NEXT_TOKEN;
-                                                
-                                                uint8_t cAlarmLevel = GET_UINT8(pAlarmLevel);
-                                                int32_t slRelativeNorth = GET_INT32(pRelativeNorth);
-                                                int32_t slRelativeEast = GET_INT32(pRelativeEast);
-                                                int16_t snRelativeVertical = GET_INT16(pRelativeVertical);
-                                                uint8_t cIDType = GET_UINT8(pIDType);
-                                                /*(Just pass the raw hex ID)*/
-                                                uint16_t nTrack = GET_UINT16(pTrack);
-                                                /*(As of 2022/06/06, turn rate is empty)*/
-                                                uint16_t nGroundSpeed = GET_UINT16(pGroundSpeed);
-                                                float fltClimbRate = GET_FLOAT(pClimbRate); /* TO DO: For performance, bin decimal and use int (x10)? */
-                                                uint8_t cAircraftType = GET_UINT8_FROM_HEX(pAircraftType);
-                                                
-                                                _Flarm_PFLAA(lID,
-                                                             cAlarmLevel,
-                                                             slRelativeNorth,
-                                                             slRelativeEast,
-                                                             snRelativeVertical,
-                                                             cIDType,
-                                                             nTrack,
-                                                             nGroundSpeed,
-                                                             fltClimbRate,
-                                                             cAircraftType);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    uint8_t cAlarmLevel = (uint8_t)Flarm_GetInt(Tokens[PFLAA_ALARM_LEVEL]);
+    int32_t slRelativeNorth = (int32_t)Flarm_GetInt(Tokens[PFLAA_RELATIVE_NORTH]);
+    int32_t slRelativeEast = (int32_t)Flarm_GetInt(Tokens[PFLAA_RELATIVE_EAST]);
+    int16_t snRelativeVertical = (int16_t)Flarm_GetInt(Tokens[PFLAA_RELATIVE_VERTICAL]);
+    uint8_t cIDType = (uint8_t)Flarm_GetInt(Tokens[PFLAA_ID_TYPE]);
+    /*(Just pass the raw hex ID)*/
+    uint16_t nTrack = (uint16_t)Flarm_GetInt(Tokens[PFLAA_TRACK]);
+    /*(As of 2022/06/06, turn rate is empty)*/
+    uint16_t nGroundSpeed = (uint16_t)Flarm_GetInt(Tokens[PFLAA_GROUND_SPEED]);
+    float fltClimbRate = Flarm_GetDecimal(Tokens[PFLAA_CLIMB_RATE]); /* TO DO: For performance, bin decimal and use int (x10)? */
+    uint8_t cAircraftType = (uint8_t)Flarm_GetIntFromHex(Tokens[PFLAA_AIRCRAFT_TYPE]);
+    
+    _Flarm_PFLAA(lID,
+                 cAlarmLevel,
+                 slRelativeNorth,
+                 slRelativeEast,
+                 snRelativeVertical,
+                 cIDType,
+                 nTrack,
+                 nGroundSpeed,
+                 fltClimbRate,
+                 cAircraftType);
 }
 #endif
 
-static void Flarm_PFLAE(uint32_t lID)
+enum
+{
+    PFLAE_QUERY_TYPE = 0,
+    PFLAE_SEVERITY,
+    PFLAE_ERROR_CODE,
+    PFLAE_MESSAGE,
+    PFLAE_LENGTH
+};
+
+static void Flarm_PFLAE(uint32_t lID, uint8_t* pcData, uint32_t lLength)
+{
+    uint8_t* Tokens[PFLAE_LENGTH];
+    bool Contents[PFLAE_LENGTH];
+    
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    PFLAE_LENGTH);
+                    
+    /* Ignore query type */
+    uint8_t cSeverity = (uint8_t)Flarm_GetInt(Tokens[PFLAE_SEVERITY]);
+    uint16_t nErrorCode = (uint16_t)Flarm_GetIntFromHex(Tokens[PFLAE_ERROR_CODE]);
+    uint8_t* pcMessage = Tokens[PFLAE_MESSAGE];
+    
+    _Flarm_PFLAE(lID,
+                 cSeverity,
+                 nErrorCode,
+                 pcMessage);
+}
+
+static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAV(uint32_t lID)
+static void Flarm_PFLAR(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAR(uint32_t lID)
+static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_GPRMC(uint32_t lID)
+static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_GPGGA(uint32_t lID)
+static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_GPGSA(uint32_t lID)
+static void Flarm_GPTXT(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_GPTXT(uint32_t lID)
+static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PGRMZ(uint32_t lID)
+static void Flarm_PFLAS(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAS(uint32_t lID)
+static void Flarm_PFLAQ(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAQ(uint32_t lID)
+static void Flarm_PFLAO(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAO(uint32_t lID)
+static void Flarm_PFLAI(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAI(uint32_t lID)
+static void Flarm_PFLAC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAC(uint32_t lID)
+static void Flarm_PFLAJ(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAJ(uint32_t lID)
+static void Flarm_PFLAB(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAB(uint32_t lID)
+static void Flarm_PFLAF(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }
 
-static void Flarm_PFLAF(uint32_t lID)
-{
-    
-}
-
-static void Flarm_PFLAL(uint32_t lID)
+static void Flarm_PFLAL(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
     
 }

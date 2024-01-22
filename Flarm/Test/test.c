@@ -2,6 +2,48 @@
 #include <stdio.h>
 #include "Flarm.h"
 
+int GetTokens(char* pcString, uint32_t lLength, const char cDelimiter, char* Token[], bool HasContent[], uint32_t lMaxTokens)
+{
+    uint32_t lCharIndex = 0;
+    uint32_t lTokenCounter = 0;
+    uint32_t lTokenLength = 0;
+    char* cTokenStart = pcString;
+    
+    while(lCharIndex < lLength)
+    {
+        if(cDelimiter == pcString[lCharIndex])
+        {
+            if(lTokenLength > 0)
+            {
+                Token[lTokenCounter] = cTokenStart;
+                HasContent[lTokenCounter] = true;
+            }
+            else
+            {
+                Token[lTokenCounter] = NULL;
+                HasContent[lTokenCounter] = false;
+            }
+            
+            lTokenCounter++;
+            cTokenStart = &pcString[lCharIndex + 1];
+            
+            if(lMaxTokens == lTokenCounter)
+                break;
+                
+            pcString[lCharIndex] = '\0';
+            lTokenLength = 0;
+        }
+        else
+        {
+            lTokenLength++;
+        }
+    
+        lCharIndex++;
+    }
+    
+    return lTokenCounter;
+}
+
 int main()
 {
     struct sdfFlarm sdcFlarm;
@@ -18,6 +60,22 @@ int main()
     }
     
     fclose(file);
+    
+    /*char cTestString[] = "PFLAU,6,1,2,1,0,,0,,,";
+    
+    int lMaxTokens = 10;
+    char* Token[lMaxTokens];
+    bool HasContent[lMaxTokens];
+    
+    GetTokens(cTestString, sizeof(cTestString), ',', Token, HasContent, lMaxTokens);
+    
+    for(int i = 0; i < lMaxTokens; i++)
+    {
+        if(HasContent[i])
+            printf("%s\n", Token[i]);
+        else
+            printf("(No content)\n");
+    }*/
 
     return 0;
 }
@@ -50,7 +108,7 @@ void _Flarm_PFLAA(uint32_t lID,
     printf("PFLAA\n");
 }
 
-void _Flarm_PFLAE(uint32_t lID)
+void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t* pcMessage)
 {
     printf("PFLAE\n");
 }
