@@ -69,7 +69,6 @@ extern void _Flarm_PFLAU(uint32_t lID,
                          int16_t snRelativeVertical,
                          uint32_t lRelativeDistance);
 
-#ifndef FLARM_PFLAA_DISABLED
 extern void _Flarm_PFLAA(uint32_t lID,
                          uint8_t cAlarmLevel,
                          int32_t slRelativeNorth,
@@ -80,10 +79,9 @@ extern void _Flarm_PFLAA(uint32_t lID,
                          uint16_t nGroundSpeed,
                          float fltClimbRate,
                          uint8_t cAircraftType);
-#endif
 
 extern void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t* pcMessage);
-extern void _Flarm_PFLAV(uint32_t lID);
+extern void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, uint8_t* pcObstVersion);
 extern void _Flarm_GPRMC(uint32_t lID);
 extern void _Flarm_GPGGA(uint32_t lID);
 extern void _Flarm_GPGSA(uint32_t lID);

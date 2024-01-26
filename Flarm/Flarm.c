@@ -216,11 +216,7 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                                 switch(pcData[4])
                                 {
                                     case 'U': Flarm_PFLAU(lID, pcData, lLength); break;
-                                            
-#ifndef FLARM_PFLAA_DISABLED
                                     case 'A': Flarm_PFLAA(lID, pcData, lLength); break;
-#endif
-                                    
                                     case 'E': Flarm_PFLAE(lID, pcData, lLength); break;
                                     case 'V': Flarm_PFLAV(lID, pcData, lLength); break;
                                     case 'Q': Flarm_PFLAQ(lID, pcData, lLength); break;
@@ -338,7 +334,6 @@ static void Flarm_PFLAU(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                  lRelativeDistance);
 }
 
-#ifndef FLARM_PLFAA_DISABLED
 enum
 {
     PFLAA_ALARM_LEVEL = 0,
@@ -393,7 +388,6 @@ static void Flarm_PFLAA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                  fltClimbRate,
                  cAircraftType);
 }
-#endif
 
 enum
 {
@@ -426,9 +420,35 @@ static void Flarm_PFLAE(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                  pcMessage);
 }
 
+enum
+{
+    PFLAV_QUERY_TYPE = 0,
+    PFLAV_HW_VERSION,
+    PFLAV_SW_VERSION,
+    PFLAV_OBST_VERSION,
+    PFLAV_LENGTH
+};
+
 static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
+    uint8_t* Tokens[PFLAV_LENGTH];
+    bool Contents[PFLAV_LENGTH];
     
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    PFLAV_LENGTH);
+                    
+    /* Ignore query type */
+    float fltHwVersion = Flarm_GetDecimal(Tokens[PFLAV_HW_VERSION]);
+    float fltSwVersion = Flarm_GetDecimal(Tokens[PFLAV_SW_VERSION]);
+    uint8_t* pcObstVersion = Tokens[PFLAV_OBST_VERSION];
+    
+    _Flarm_PFLAV(lID,
+                 fltHwVersion,
+                 fltSwVersion,
+                 pcObstVersion);
 }
 
 static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)

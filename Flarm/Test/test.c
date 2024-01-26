@@ -113,7 +113,7 @@ void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t*
     printf("PFLAE\n");
 }
 
-void _Flarm_PFLAV(uint32_t lID)
+void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, uint8_t* pcObstVersion)
 {
     printf("PFLAV\n");
 }
