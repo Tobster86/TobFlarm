@@ -19,7 +19,11 @@ static void Flarm_PFLAA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 
 static void Flarm_PFLAE(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+
+#ifndef FLARM_GPRMC_DISABLED
 static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+#endif
+
 static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
@@ -49,6 +53,14 @@ static float Flarm_GetDecimal(uint8_t* pcData)
         return strtof((char*)pcData, NULL);
         
     return 0.0f;
+}
+
+static char Flarm_GetChar(uint8_t* pcData)
+{
+    if(pcData)
+        return *pcData;
+        
+    return '\0';
 }
 
 static uint32_t Flarm_GetTokens(uint8_t* pcString,
@@ -197,8 +209,6 @@ void Flarm_RXProcess(struct sdfFlarm* psdcFlarm, uint8_t* pcData, uint32_t lLeng
 
 static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
-    //printf("%.*s\n", lLength, pcData);
-    
     if(lLength > 0)
     {
         switch(pcData[0])
@@ -230,7 +240,7 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                     
                     case 'G': //PG
                     {
-                        if(0 == strcmp("RMZ", (char*)&pcData[2]))
+                        if(0 == strncmp("RMZ", (char*)&pcData[2], 3))
                         {
                             Flarm_PGRMZ(lID, pcData, lLength);
                         }
@@ -246,14 +256,16 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                 {
                     switch(pcData[2])
                     {
+#ifndef FLARM_GPRMC_DISABLED
                         case 'R': //GPR
                         {
-                            if(0 == strcmp("MC", (char*)&pcData[3]))
+                            if(0 == strncmp("MC", (char*)&pcData[3], 2))
                             {
                                 Flarm_GPRMC(lID, pcData, lLength);
                             }
                         }
                         break;
+#endif
                         
                         case 'G': //GPG
                         {
@@ -451,10 +463,62 @@ static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                  pcObstVersion);
 }
 
+#ifndef FLARM_GPRMC_DISABLED
+enum
+{
+    GPRMC_TIME = 0,
+    GPRMC_ACTIVE,
+    GPRMC_LATITUDE,
+    GPRMC_LAT_H_IND,
+    GPRMC_LONGITUDE,
+    GPRMC_LONG_H_IND,
+    GPRMC_SPEED,
+    GPRMC_TRACK,
+    GPRMC_DATE,
+    GPRMC_MAG_VAR,
+    GPRMC_MAG_VAR_DIR,
+    GPRMC_LENGTH,
+};
+
+#define GPRMC_ACTIVE 'A'
+
 static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
+    uint8_t* Tokens[GPRMC_LENGTH];
+    bool Contents[GPRMC_LENGTH];
     
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    GPRMC_LENGTH);
+
+    float fltTime = Flarm_GetDecimal(Tokens[GPRMC_TIME]);
+    bool bActive = GPRMC_ACTIVE == Flarm_GetChar(Tokens[GPRMC_ACTIVE]);
+    float fltLatitude = Flarm_GetDecimal(Tokens[GPRMC_LATITUDE]);
+    char cLatitudeHemisphere = Flarm_GetChar(Tokens[GPRMC_LAT_H_IND]);
+    float fltLongitude = Flarm_GetDecimal(Tokens[GPRMC_LONGITUDE]);
+    char cLongitudeHemisphere = Flarm_GetChar(Tokens[GPRMC_LONG_H_IND]);
+    float fltSpeed = Flarm_GetDecimal(Tokens[GPRMC_SPEED]);
+    float fltTrack = Flarm_GetDecimal(Tokens[GPRMC_TRACK]);
+    uint32_t lDate = Flarm_GetInt(Tokens[GPRMC_DATE]);
+    float fltMagVar = Flarm_GetDecimal(Tokens[GPRMC_MAG_VAR]);
+    char cMagVarDirection = Flarm_GetChar(Tokens[GPRMC_MAG_VAR_DIR]);
+    
+    _Flarm_GPRMC(lID,
+                 fltTime,
+                 bActive,
+                 fltLatitude,
+                 cLatitudeHemisphere,
+                 fltLongitude,
+                 cLongitudeHemisphere,
+                 fltSpeed,
+                 fltTrack,
+                 lDate,
+                 fltMagVar,
+                 cMagVarDirection);
 }
+#endif
 
 static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {

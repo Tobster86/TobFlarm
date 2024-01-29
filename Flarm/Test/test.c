@@ -118,7 +118,18 @@ void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, uint8_t*
     printf("PFLAV\n");
 }
 
-void _Flarm_GPRMC(uint32_t lID)
+void _Flarm_GPRMC(uint32_t lID,
+                  float fltTime,
+                  bool bActive,
+                  float fltLatitude,
+                  char cLatitudeHemisphere,
+                  float fltLongitude,
+                  char cLongitudeHemisphere,
+                  float fltSpeed,
+                  float fltTrack,
+                  uint32_t lDate,
+                  float fltMagVar,
+                  char cMagVarDirection)
 {
     printf("GPRMC\n");
 }
