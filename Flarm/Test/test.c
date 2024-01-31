@@ -134,7 +134,19 @@ void _Flarm_GPRMC(uint32_t lID,
     printf("GPRMC\n");
 }
 
-void _Flarm_GPGGA(uint32_t lID)
+void _Flarm_GPGGA(uint32_t lID,
+                  float fltTime,
+                  float fltLatitude,
+                  char cLatitudeHemisphere,
+                  float fltLongitude,
+                  char cLongitudeHemisphere,
+                  uint8_t cQuality,
+                  uint8_t cSatellites,
+                  float fltHDOP,
+                  float fltAltitude,
+                  char cAltitudeUnit,
+                  float fltUndulation,
+                  char cUndulationUnit)
 {
     printf("GPGGA\n");
 }

@@ -98,7 +98,22 @@ extern void _Flarm_GPRMC(uint32_t lID,
                          char cMagVarDirection);
 #endif
 
-extern void _Flarm_GPGGA(uint32_t lID);
+#ifndef FLARM_GPGGA_DISABLED
+extern void _Flarm_GPGGA(uint32_t lID,
+                         float fltTime,
+                         float fltLatitude,
+                         char cLatitudeHemisphere,
+                         float fltLongitude,
+                         char cLongitudeHemisphere,
+                         uint8_t cQuality,
+                         uint8_t cSatellites,
+                         float fltHDOP,
+                         float fltAltitude,
+                         char cAltitudeUnit,
+                         float fltUndulation,
+                         char cUndulationUnit);
+#endif
+
 extern void _Flarm_GPGSA(uint32_t lID);
 extern void _Flarm_PGRMZ(uint32_t lID);
 extern void _Flarm_PFLAQ(uint32_t lID);

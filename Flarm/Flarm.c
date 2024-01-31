@@ -24,7 +24,10 @@ static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 #endif
 
+#ifndef FLARM_GPGGA_DISABLED
 static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
+#endif
+
 static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAQ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
@@ -271,6 +274,7 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                         {
                             switch(pcData[3])
                             {
+#ifndef FLARM_GPGGA_DISABLED
                                 case 'G': //GPGG
                                 {
                                     if('A' == pcData[4])
@@ -279,6 +283,7 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                                     }
                                 }
                                 break;
+#endif
                                 
                                 case 'S': //GPGS
                                 {
@@ -520,10 +525,63 @@ static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 }
 #endif
 
+#ifndef FLARM_GPGGA_DISABLED
+enum
+{
+    GPGGA_TIME = 0,
+    GPGGA_LATITUDE,
+    GPGGA_LAT_H_IND,
+    GPGGA_LONGITUDE,
+    GPGGA_LONG_H_IND,
+    GPGGA_QUALITY,
+    GPGGA_SATELLITES,
+    GPGGA_HDOP,
+    GPGGA_ALTITUDE,
+    GPGGA_ALT_UNIT,
+    GPGGA_UNDULATION,
+    GPGGA_UND_UNIT,
+    GPGGA_LENGTH,
+};
+
 static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
+    uint8_t* Tokens[GPGGA_LENGTH];
+    bool Contents[GPGGA_LENGTH];
     
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    GPGGA_LENGTH);
+
+    float fltTime = Flarm_GetDecimal(Tokens[GPRMC_TIME]);
+    float fltLatitude = Flarm_GetDecimal(Tokens[GPGGA_LATITUDE]);
+    char cLatitudeHemisphere = Flarm_GetChar(Tokens[GPGGA_LAT_H_IND]);
+    float fltLongitude = Flarm_GetDecimal(Tokens[GPGGA_LONGITUDE]);
+    char cLongitudeHemisphere = Flarm_GetChar(Tokens[GPGGA_LONG_H_IND]);
+    uint8_t cQuality = (uint8_t)Flarm_GetInt(Tokens[GPGGA_QUALITY]);
+    uint8_t cSatellites = (uint8_t)Flarm_GetInt(Tokens[GPGGA_SATELLITES]);
+    float fltHDOP = Flarm_GetDecimal(Tokens[GPGGA_HDOP]);
+    float fltAltitude = Flarm_GetDecimal(Tokens[GPGGA_ALTITUDE]);
+    char cAltitudeUnit = Flarm_GetChar(Tokens[GPGGA_ALT_UNIT]);
+    float fltUndulation = Flarm_GetDecimal(Tokens[GPGGA_UNDULATION]);
+    char cUndulationUnit = Flarm_GetChar(Tokens[GPGGA_UND_UNIT]);
+    
+    _Flarm_GPGGA(lID,
+                 fltTime,
+                 fltLatitude,
+                 cLatitudeHemisphere,
+                 fltLongitude,
+                 cLongitudeHemisphere,
+                 cQuality,
+                 cSatellites,
+                 fltHDOP,
+                 fltAltitude,
+                 cAltitudeUnit,
+                 fltUndulation,
+                 cUndulationUnit);
 }
+#endif
 
 static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
