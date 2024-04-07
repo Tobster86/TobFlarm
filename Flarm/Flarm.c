@@ -583,9 +583,53 @@ static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 }
 #endif
 
+enum
+{
+    GPGSA_MODEAUTO,
+    GPGSA_MODE,
+    GPGSA_PRN1,
+    GPGSA_PRN2,
+    GPGSA_PRN3,
+    GPGSA_PRN4,
+    GPGSA_PRN5,
+    GPGSA_PRN6,
+    GPGSA_PRN7,
+    GPGSA_PRN8,
+    GPGSA_PRN9,
+    GPGSA_PRN10,
+    GPGSA_PRN11,
+    GPGSA_PRN12,
+    GPGSA_PDOP,
+    GPGSA_HDOP,
+    GPGSA_VDOP,
+    /* Nobody cares about system ID. */
+    GPGSA_LENGTH
+};
+
 static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
+    uint8_t* Tokens[GPGSA_LENGTH];
+    bool Contents[GPGSA_LENGTH];
     
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    GPGSA_LENGTH);
+
+    char cModeAuto = Flarm_GetChar(Tokens[GPGSA_MODEAUTO]);
+    char cMode = Flarm_GetChar(Tokens[GPGSA_MODE]);
+    /* Nobody cares about PRN IDs. */
+    float fltPDOP = Flarm_GetDecimal(Tokens[GPGSA_PDOP]);
+    float fltHDOP = Flarm_GetDecimal(Tokens[GPGSA_HDOP]);
+    float fltVDOP = Flarm_GetDecimal(Tokens[GPGSA_VDOP]);
+    
+    _Flarm_GPGSA(lID,
+                 cModeAuto,
+                 cMode,
+                 fltPDOP,
+                 fltHDOP,
+                 fltVDOP);
 }
 
 static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength)

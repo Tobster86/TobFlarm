@@ -114,7 +114,13 @@ extern void _Flarm_GPGGA(uint32_t lID,
                          char cUndulationUnit);
 #endif
 
-extern void _Flarm_GPGSA(uint32_t lID);
+extern void _Flarm_GPGSA(uint32_t lID,
+                         char cModeAuto,
+                         char cMode,
+                         float fltPDOP,
+                         float fltHDOP,
+                         float fltVDOP);
+
 extern void _Flarm_PGRMZ(uint32_t lID);
 extern void _Flarm_PFLAQ(uint32_t lID);
 extern void _Flarm_PFLAO(uint32_t lID);

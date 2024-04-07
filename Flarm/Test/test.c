@@ -151,7 +151,12 @@ void _Flarm_GPGGA(uint32_t lID,
     printf("GPGGA\n");
 }
 
-void _Flarm_GPGSA(uint32_t lID)
+void _Flarm_GPGSA(uint32_t lID,
+                  char cModeAuto,
+                  char cMode,
+                  float fltPDOP,
+                  float fltHDOP,
+                  float fltVDOP)
 {
     printf("GPGSA\n");
 }
