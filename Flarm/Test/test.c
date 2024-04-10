@@ -166,18 +166,8 @@ void _Flarm_PGRMZ(uint32_t lID)
     printf("PGRMZ\n");
 }
 
-void _Flarm_PFLAQ(uint32_t lID)
+void _Flarm_PFLAQ(uint32_t lID, char* pcOp, char* pcInfo, uint8_t cProgress)
 {
     printf("PFLAQ\n");
-}
-
-void _Flarm_PFLAO(uint32_t lID)
-{
-    printf("PFLAO\n");
-}
-
-void _Flarm_PFLAB(uint32_t lID)
-{
-    printf("PFLAB\n");
 }
 

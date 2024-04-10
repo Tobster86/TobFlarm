@@ -29,10 +29,7 @@ static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 #endif
 
 static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 static void Flarm_PFLAQ(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAO(uint32_t lID, uint8_t* pcData, uint32_t lLength);
-static void Flarm_PFLAB(uint32_t lID, uint8_t* pcData, uint32_t lLength);
 
 static long Flarm_GetInt(uint8_t* pcData)
 {
@@ -218,37 +215,16 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
         {
             case 'P': //P
             {
-                switch(pcData[1])
+                if(0 == strncmp("FLA", (char*)&pcData[1], 3))
                 {
-                    case 'F': //PF
+                    switch(pcData[4])
                     {
-                        if('L' == pcData[2]) //PFL
-                        {
-                            if('A' == pcData[3]) //PFLA
-                            {
-                                switch(pcData[4])
-                                {
-                                    case 'U': Flarm_PFLAU(lID, pcData, lLength); break;
-                                    case 'A': Flarm_PFLAA(lID, pcData, lLength); break;
-                                    case 'E': Flarm_PFLAE(lID, pcData, lLength); break;
-                                    case 'V': Flarm_PFLAV(lID, pcData, lLength); break;
-                                    case 'Q': Flarm_PFLAQ(lID, pcData, lLength); break;
-                                    case 'O': Flarm_PFLAO(lID, pcData, lLength); break;
-                                    case 'B': Flarm_PFLAB(lID, pcData, lLength); break;
-                                }
-                            }
-                        }
+                        case 'U': Flarm_PFLAU(lID, pcData, lLength); break;
+                        case 'A': Flarm_PFLAA(lID, pcData, lLength); break;
+                        case 'E': Flarm_PFLAE(lID, pcData, lLength); break;
+                        case 'V': Flarm_PFLAV(lID, pcData, lLength); break;
+                        case 'Q': Flarm_PFLAQ(lID, pcData, lLength); break;
                     }
-                    break;
-                    
-                    case 'G': //PG
-                    {
-                        if(0 == strncmp("RMZ", (char*)&pcData[2], 3))
-                        {
-                            Flarm_PGRMZ(lID, pcData, lLength);
-                        }
-                    }
-                    break;
                 }
             }
             break;
@@ -585,7 +561,7 @@ static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 
 enum
 {
-    GPGSA_MODEAUTO,
+    GPGSA_MODEAUTO = 0,
     GPGSA_MODE,
     GPGSA_PRN1,
     GPGSA_PRN2,
@@ -632,23 +608,29 @@ static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                  fltVDOP);
 }
 
-static void Flarm_PGRMZ(uint32_t lID, uint8_t* pcData, uint32_t lLength)
+enum
 {
-    
-}
+    PFLAQ_OP = 0,
+    PFLAQ_INFO,
+    PFLAQ_PROGRESS,
+    PFLAQ_LENGTH
+};
 
 static void Flarm_PFLAQ(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
+    uint8_t* Tokens[PFLAQ_LENGTH];
+    bool Contents[PFLAQ_LENGTH];
     
-}
+    Flarm_GetTokens(pcData,
+                    lLength,
+                    Tokens,
+                    Contents,
+                    GPGSA_LENGTH);
 
-static void Flarm_PFLAO(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
+    char* pcOp = (char*)Tokens[PFLAQ_OP];
+    char* pcInfo = (char*)Tokens[PFLAQ_INFO];
+    uint8_t cProgress = (uint8_t)Flarm_GetInt(Tokens[PFLAQ_PROGRESS]);
     
-}
-
-static void Flarm_PFLAB(uint32_t lID, uint8_t* pcData, uint32_t lLength)
-{
-    
+    _Flarm_PFLAQ(lID, pcOp, pcInfo, cProgress);
 }
 

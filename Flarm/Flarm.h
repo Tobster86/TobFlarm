@@ -121,10 +121,7 @@ extern void _Flarm_GPGSA(uint32_t lID,
                          float fltHDOP,
                          float fltVDOP);
 
-extern void _Flarm_PGRMZ(uint32_t lID);
-extern void _Flarm_PFLAQ(uint32_t lID);
-extern void _Flarm_PFLAO(uint32_t lID);
-extern void _Flarm_PFLAB(uint32_t lID);
+extern void _Flarm_PFLAQ(uint32_t lID, char* pcOp, char* pcInfo, uint8_t cProgress);
 
 struct sdfFlarm
 {
