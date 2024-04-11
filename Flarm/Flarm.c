@@ -282,7 +282,7 @@ static void Flarm_Interpret(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 
 enum
 {
-    PFLAU_RX = 0,
+    PFLAU_RX = 1,
     PFLAU_TX,
     PFLAU_GPS,
     PFLAU_POWER,
@@ -329,7 +329,7 @@ static void Flarm_PFLAU(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 
 enum
 {
-    PFLAA_ALARM_LEVEL = 0,
+    PFLAA_ALARM_LEVEL = 1,
     PFLAA_RELATIVE_NORTH,
     PFLAA_RELATIVE_EAST,
     PFLAA_RELATIVE_VERTICAL,
@@ -384,7 +384,7 @@ static void Flarm_PFLAA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 
 enum
 {
-    PFLAE_QUERY_TYPE = 0,
+    PFLAE_QUERY_TYPE = 1,
     PFLAE_SEVERITY,
     PFLAE_ERROR_CODE,
     PFLAE_MESSAGE,
@@ -415,7 +415,7 @@ static void Flarm_PFLAE(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 
 enum
 {
-    PFLAV_QUERY_TYPE = 0,
+    PFLAV_QUERY_TYPE = 1,
     PFLAV_HW_VERSION,
     PFLAV_SW_VERSION,
     PFLAV_OBST_VERSION,
@@ -447,7 +447,7 @@ static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 #ifndef FLARM_GPRMC_DISABLED
 enum
 {
-    GPRMC_TIME = 0,
+    GPRMC_TIME = 1,
     GPRMC_ACTIVE,
     GPRMC_LATITUDE,
     GPRMC_LAT_H_IND,
@@ -504,7 +504,7 @@ static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 #ifndef FLARM_GPGGA_DISABLED
 enum
 {
-    GPGGA_TIME = 0,
+    GPGGA_TIME = 1,
     GPGGA_LATITUDE,
     GPGGA_LAT_H_IND,
     GPGGA_LONGITUDE,
@@ -561,7 +561,7 @@ static void Flarm_GPGGA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 
 enum
 {
-    GPGSA_MODEAUTO = 0,
+    GPGSA_MODEAUTO = 1,
     GPGSA_MODE,
     GPGSA_PRN1,
     GPGSA_PRN2,
@@ -610,7 +610,7 @@ static void Flarm_GPGSA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 
 enum
 {
-    PFLAQ_OP = 0,
+    PFLAQ_OP = 1,
     PFLAQ_INFO,
     PFLAQ_PROGRESS,
     PFLAQ_LENGTH

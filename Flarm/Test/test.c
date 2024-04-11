@@ -1,56 +1,49 @@
 
 #include <stdio.h>
 #include "Flarm.h"
+#include "test.h"
 
-int GetTokens(char* pcString, uint32_t lLength, const char cDelimiter, char* Token[], bool HasContent[], uint32_t lMaxTokens)
+#define TEST_FLARM_ID 0xAA55AA55u
+
+char pcTestPFLAU[] = "$PFLAU,99,1,2,0,3,-63,4,-5793,2147483646,*XX";
+
+uint32_t lCallsPFLAU = 0;
+uint32_t lCallsPFLAA = 0;
+uint32_t lCallsPFLAE = 0;
+uint32_t lCallsPFLAV = 0;
+uint32_t lCallsGPRMC = 0;
+uint32_t lCallsGPGGA = 0;
+uint32_t lCallsGPGSA = 0;
+uint32_t lCallsPGRMZ = 0;
+uint32_t lCallsPFLAQ = 0;
+
+uint8_t* nmea_xorify(char* pcInput)
 {
-    uint32_t lCharIndex = 0;
-    uint32_t lTokenCounter = 0;
-    uint32_t lTokenLength = 0;
-    char* cTokenStart = pcString;
-    
-    while(lCharIndex < lLength)
+    uint32_t lLength = strlen(pcInput);
+    uint8_t cXOR = 0x00;
+
+    //Perform NMEA-spec XOR on input message.
+    for(int i = 1; i < lLength - 3; i++)
     {
-        if(cDelimiter == pcString[lCharIndex])
-        {
-            if(lTokenLength > 0)
-            {
-                Token[lTokenCounter] = cTokenStart;
-                HasContent[lTokenCounter] = true;
-            }
-            else
-            {
-                Token[lTokenCounter] = NULL;
-                HasContent[lTokenCounter] = false;
-            }
-            
-            lTokenCounter++;
-            cTokenStart = &pcString[lCharIndex + 1];
-            
-            if(lMaxTokens == lTokenCounter)
-                break;
-                
-            pcString[lCharIndex] = '\0';
-            lTokenLength = 0;
-        }
-        else
-        {
-            lTokenLength++;
-        }
-    
-        lCharIndex++;
+        cXOR ^= pcInput[i];
     }
     
-    return lTokenCounter;
+    sprintf(&pcInput[lLength - 2], "%02X", cXOR);
+    
+    printf("\nNMEA xorified: %s\n", pcInput);
+    
+    return (uint8_t*)pcInput;
 }
 
 int main()
 {
     struct sdfFlarm sdcFlarm;
     
-    Flarm_Init(&sdcFlarm, 0xAA55AA55u);
+    Flarm_Init(&sdcFlarm, TEST_FLARM_ID);
     
-    FILE *file = fopen("flarmdata.log", "r");
+    Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAU), sizeof(pcTestPFLAU));
+    
+/*    FILE *file = fopen("flarmdata.log", "r");
 
     int ch;
     
@@ -59,23 +52,20 @@ int main()
         Flarm_RXProcess(&sdcFlarm, (uint8_t*)&ch, sizeof(char));
     }
     
-    fclose(file);
+    fclose(file);*/
     
-    /*char cTestString[] = "PFLAU,6,1,2,1,0,,0,,,";
-    
-    int lMaxTokens = 10;
-    char* Token[lMaxTokens];
-    bool HasContent[lMaxTokens];
-    
-    GetTokens(cTestString, sizeof(cTestString), ',', Token, HasContent, lMaxTokens);
-    
-    for(int i = 0; i < lMaxTokens; i++)
-    {
-        if(HasContent[i])
-            printf("%s\n", Token[i]);
-        else
-            printf("(No content)\n");
-    }*/
+    printf("\n---=== Function counts ===---\n");
+    ASSERT_EQUAL(1, lCallsPFLAU, "PFLAU count correct");
+    ASSERT_EQUAL(0, lCallsPFLAA, "PFLAA count correct");
+    ASSERT_EQUAL(0, lCallsPFLAE, "PFLAE count correct");
+    ASSERT_EQUAL(0, lCallsPFLAV, "PFLAV count correct");
+    ASSERT_EQUAL(0, lCallsGPRMC, "GPRMC count correct");
+    ASSERT_EQUAL(0, lCallsGPGGA, "GPGGA count correct");
+    ASSERT_EQUAL(0, lCallsGPGSA, "GPGSA count correct");
+    ASSERT_EQUAL(0, lCallsPGRMZ, "PGRMZ count correct");
+    ASSERT_EQUAL(0, lCallsPFLAQ, "PFLAQ count correct");
+
+    PRINT_TEST_RESULTS;
 
     return 0;
 }
@@ -91,7 +81,18 @@ void _Flarm_PFLAU(uint32_t lID,
                   int16_t snRelativeVertical,
                   uint32_t lRelativeDistance)
 {
-    printf("PFLAU\n");
+    printf("\nPFLAU\n");
+    lCallsPFLAU++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
+    ASSERT_EQUAL(99, cContacts, "Contacts OK");
+    ASSERT_EQUAL(true, bTXOk, "TXOK OK");
+    ASSERT_EQUAL(2, cGPSStatus, "GPSStatus OK");
+    ASSERT_EQUAL(false, bPowerOk, "PowerOK OK");
+    ASSERT_EQUAL(3, cAlarmLevel, "AlarmLevel OK");
+    ASSERT_EQUAL(-63, snRelativeBearing, "RelativeBearing OK");
+    ASSERT_EQUAL(4, cAlarmType, "AlarmType OK");
+    ASSERT_EQUAL(-5793, snRelativeVertical, "RelativeVertical OK");
+    ASSERT_EQUAL(2147483646, lRelativeDistance, "RelativeDistance OK");
 }
 
 void _Flarm_PFLAA(uint32_t lID,
@@ -105,17 +106,23 @@ void _Flarm_PFLAA(uint32_t lID,
                   float fltClimbRate,
                   uint8_t cAircraftType)
 {
-    printf("PFLAA\n");
+    printf("\nPFLAA\n");
+    lCallsPFLAA++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
 void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t* pcMessage)
 {
-    printf("PFLAE\n");
+    printf("\nPFLAE\n");
+    lCallsPFLAE++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
 void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, uint8_t* pcObstVersion)
 {
-    printf("PFLAV\n");
+    printf("\nPFLAV\n");
+    lCallsPFLAV++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
 void _Flarm_GPRMC(uint32_t lID,
@@ -131,7 +138,9 @@ void _Flarm_GPRMC(uint32_t lID,
                   float fltMagVar,
                   char cMagVarDirection)
 {
-    printf("GPRMC\n");
+    printf("\nGPRMC\n");
+    lCallsGPRMC++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
 void _Flarm_GPGGA(uint32_t lID,
@@ -148,7 +157,9 @@ void _Flarm_GPGGA(uint32_t lID,
                   float fltUndulation,
                   char cUndulationUnit)
 {
-    printf("GPGGA\n");
+    printf("\nGPGGA\n");
+    lCallsGPGGA++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
 void _Flarm_GPGSA(uint32_t lID,
@@ -158,16 +169,22 @@ void _Flarm_GPGSA(uint32_t lID,
                   float fltHDOP,
                   float fltVDOP)
 {
-    printf("GPGSA\n");
+    printf("\nGPGSA\n");
+    lCallsGPGSA++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
 void _Flarm_PGRMZ(uint32_t lID)
 {
-    printf("PGRMZ\n");
+    printf("\nPGRMZ\n");
+    lCallsPGRMZ++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
 void _Flarm_PFLAQ(uint32_t lID, char* pcOp, char* pcInfo, uint8_t cProgress)
 {
-    printf("PFLAQ\n");
+    printf("\nPFLAQ\n");
+    lCallsPFLAQ++;
+    ASSERT_EQUAL(TEST_FLARM_ID, lID);
 }
 
