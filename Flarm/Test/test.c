@@ -6,6 +6,7 @@
 #define TEST_FLARM_ID 0xAA55AA55u
 
 char pcTestPFLAU[] = "$PFLAU,99,1,2,0,3,-63,4,-5793,2147483646,*XX";
+char pcTestPFLAA[] = "$PFLAA,3,-19999999,19999999,-32767,1,ABCD6969,359,xxxxx,32500,-32.7,C,*XX";
 
 uint32_t lCallsPFLAU = 0;
 uint32_t lCallsPFLAA = 0;
@@ -42,6 +43,7 @@ int main()
     Flarm_Init(&sdcFlarm, TEST_FLARM_ID);
     
     Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAU), sizeof(pcTestPFLAU));
+    Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAA), sizeof(pcTestPFLAA));
     
 /*    FILE *file = fopen("flarmdata.log", "r");
 
@@ -56,7 +58,7 @@ int main()
     
     printf("\n---=== Function counts ===---\n");
     ASSERT_EQUAL(1, lCallsPFLAU, "PFLAU count correct");
-    ASSERT_EQUAL(0, lCallsPFLAA, "PFLAA count correct");
+    ASSERT_EQUAL(1, lCallsPFLAA, "PFLAA count correct");
     ASSERT_EQUAL(0, lCallsPFLAE, "PFLAE count correct");
     ASSERT_EQUAL(0, lCallsPFLAV, "PFLAV count correct");
     ASSERT_EQUAL(0, lCallsGPRMC, "GPRMC count correct");
@@ -101,6 +103,7 @@ void _Flarm_PFLAA(uint32_t lID,
                   int32_t slRelativeEast,
                   int16_t snRelativeVertical,
                   uint8_t cIDType,
+                  char* pcID,
                   uint16_t nTrack,
                   uint16_t nGroundSpeed,
                   float fltClimbRate,
@@ -108,7 +111,17 @@ void _Flarm_PFLAA(uint32_t lID,
 {
     printf("\nPFLAA\n");
     lCallsPFLAA++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
+    ASSERT_EQUAL(3, cAlarmLevel, "Alarm Level OK");
+    ASSERT_EQUAL(-19999999, slRelativeNorth, "Relative North OK");
+    ASSERT_EQUAL(19999999, slRelativeEast, "Relative East OK");
+    ASSERT_EQUAL(-32767, snRelativeVertical, "Relative Vertical OK");
+    ASSERT_EQUAL(1, cIDType, "ID Type OK");
+    ASSERT_EQUAL(0, strcmp(pcID, "ABCD6969"), "FLARM ID OK");
+    ASSERT_EQUAL(359, nTrack, "Track OK");
+    ASSERT_EQUAL(32500, nGroundSpeed, "Ground Speed OK");
+    ASSERT_EQUAL(-32.7f, fltClimbRate, "Climb Rate OK");
+    ASSERT_EQUAL(0x0C, cAircraftType, "Aircraft Type OK");
 }
 
 void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t* pcMessage)

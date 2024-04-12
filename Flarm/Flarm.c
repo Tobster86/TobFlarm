@@ -376,6 +376,7 @@ static void Flarm_PFLAA(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                  slRelativeEast,
                  snRelativeVertical,
                  cIDType,
+                 (char*)Tokens[PFLAA_HEX_ID],
                  nTrack,
                  nGroundSpeed,
                  fltClimbRate,
