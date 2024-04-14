@@ -7,6 +7,7 @@
 
 char pcTestPFLAU[] = "$PFLAU,99,1,2,0,3,-63,4,-5793,2147483646,*XX";
 char pcTestPFLAA[] = "$PFLAA,3,-19999999,19999999,-32767,1,ABCD6969,359,xxxxx,32500,-32.7,C,*XX";
+char pcTestPFLAE[] = "$PFLAE,A,3,120,LOLOLOL69,*XX";
 
 uint32_t lCallsPFLAU = 0;
 uint32_t lCallsPFLAA = 0;
@@ -44,6 +45,7 @@ int main()
     
     Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAU), sizeof(pcTestPFLAU));
     Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAA), sizeof(pcTestPFLAA));
+    Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAE), sizeof(pcTestPFLAE));
     
 /*    FILE *file = fopen("flarmdata.log", "r");
 
@@ -59,7 +61,7 @@ int main()
     printf("\n---=== Function counts ===---\n");
     ASSERT_EQUAL(1, lCallsPFLAU, "PFLAU count correct");
     ASSERT_EQUAL(1, lCallsPFLAA, "PFLAA count correct");
-    ASSERT_EQUAL(0, lCallsPFLAE, "PFLAE count correct");
+    ASSERT_EQUAL(1, lCallsPFLAE, "PFLAE count correct");
     ASSERT_EQUAL(0, lCallsPFLAV, "PFLAV count correct");
     ASSERT_EQUAL(0, lCallsGPRMC, "GPRMC count correct");
     ASSERT_EQUAL(0, lCallsGPGGA, "GPGGA count correct");
@@ -124,18 +126,21 @@ void _Flarm_PFLAA(uint32_t lID,
     ASSERT_EQUAL(0x0C, cAircraftType, "Aircraft Type OK");
 }
 
-void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t* pcMessage)
+void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, char* pcMessage)
 {
     printf("\nPFLAE\n");
     lCallsPFLAE++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
+    ASSERT_EQUAL(3, cSeverity, "Severity OK");
+    ASSERT_EQUAL(0x120, nErrorCode, "Error Code OK");
+    ASSERT_EQUAL(0, strcmp(pcMessage, "LOLOLOL69"), "Error Message OK");
 }
 
 void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, uint8_t* pcObstVersion)
 {
     printf("\nPFLAV\n");
     lCallsPFLAV++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
 }
 
 void _Flarm_GPRMC(uint32_t lID,
@@ -153,7 +158,7 @@ void _Flarm_GPRMC(uint32_t lID,
 {
     printf("\nGPRMC\n");
     lCallsGPRMC++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
 }
 
 void _Flarm_GPGGA(uint32_t lID,
@@ -172,7 +177,7 @@ void _Flarm_GPGGA(uint32_t lID,
 {
     printf("\nGPGGA\n");
     lCallsGPGGA++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
 }
 
 void _Flarm_GPGSA(uint32_t lID,
@@ -184,20 +189,20 @@ void _Flarm_GPGSA(uint32_t lID,
 {
     printf("\nGPGSA\n");
     lCallsGPGSA++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
 }
 
 void _Flarm_PGRMZ(uint32_t lID)
 {
     printf("\nPGRMZ\n");
     lCallsPGRMZ++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
 }
 
 void _Flarm_PFLAQ(uint32_t lID, char* pcOp, char* pcInfo, uint8_t cProgress)
 {
     printf("\nPFLAQ\n");
     lCallsPFLAQ++;
-    ASSERT_EQUAL(TEST_FLARM_ID, lID);
+    ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
 }
 

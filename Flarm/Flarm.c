@@ -406,12 +406,11 @@ static void Flarm_PFLAE(uint32_t lID, uint8_t* pcData, uint32_t lLength)
     /* Ignore query type */
     uint8_t cSeverity = (uint8_t)Flarm_GetInt(Tokens[PFLAE_SEVERITY]);
     uint16_t nErrorCode = (uint16_t)Flarm_GetIntFromHex(Tokens[PFLAE_ERROR_CODE]);
-    uint8_t* pcMessage = Tokens[PFLAE_MESSAGE];
     
     _Flarm_PFLAE(lID,
                  cSeverity,
                  nErrorCode,
-                 pcMessage);
+                 (char*)Tokens[PFLAE_MESSAGE]);
 }
 
 enum

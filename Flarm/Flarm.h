@@ -81,7 +81,7 @@ extern void _Flarm_PFLAA(uint32_t lID,
                          float fltClimbRate,
                          uint8_t cAircraftType);
 
-extern void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, uint8_t* pcMessage);
+extern void _Flarm_PFLAE(uint32_t lID, uint8_t cSeverity, uint16_t nErrorCode, char* pcMessage);
 extern void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, uint8_t* pcObstVersion);
 
 #ifndef FLARM_GPRMC_DISABLED
