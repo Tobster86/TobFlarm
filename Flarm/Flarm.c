@@ -448,7 +448,7 @@ static void Flarm_PFLAV(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 enum
 {
     GPRMC_TIME = 1,
-    GPRMC_ACTIVE,
+    GPRMC_VALID,
     GPRMC_LATITUDE,
     GPRMC_LAT_H_IND,
     GPRMC_LONGITUDE,
@@ -461,7 +461,7 @@ enum
     GPRMC_LENGTH,
 };
 
-#define GPRMC_ACTIVE 'A'
+#define GPRMC_ISVALID 'A'
 
 static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
 {
@@ -475,16 +475,14 @@ static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                     GPRMC_LENGTH);
 
     float fltTime = Flarm_GetDecimal(Tokens[GPRMC_TIME]);
-    bool bActive = GPRMC_ACTIVE == Flarm_GetChar(Tokens[GPRMC_ACTIVE]);
+    bool bActive = GPRMC_ISVALID == Flarm_GetChar(Tokens[GPRMC_VALID]);
     float fltLatitude = Flarm_GetDecimal(Tokens[GPRMC_LATITUDE]);
     char cLatitudeHemisphere = Flarm_GetChar(Tokens[GPRMC_LAT_H_IND]);
     float fltLongitude = Flarm_GetDecimal(Tokens[GPRMC_LONGITUDE]);
     char cLongitudeHemisphere = Flarm_GetChar(Tokens[GPRMC_LONG_H_IND]);
     float fltSpeed = Flarm_GetDecimal(Tokens[GPRMC_SPEED]);
     float fltTrack = Flarm_GetDecimal(Tokens[GPRMC_TRACK]);
-    uint32_t lDate = Flarm_GetInt(Tokens[GPRMC_DATE]);
-    float fltMagVar = Flarm_GetDecimal(Tokens[GPRMC_MAG_VAR]);
-    char cMagVarDirection = Flarm_GetChar(Tokens[GPRMC_MAG_VAR_DIR]);
+    /* Don't care about the date or mag var. */
     
     _Flarm_GPRMC(lID,
                  fltTime,
@@ -494,10 +492,7 @@ static void Flarm_GPRMC(uint32_t lID, uint8_t* pcData, uint32_t lLength)
                  fltLongitude,
                  cLongitudeHemisphere,
                  fltSpeed,
-                 fltTrack,
-                 lDate,
-                 fltMagVar,
-                 cMagVarDirection);
+                 fltTrack);
 }
 #endif
 

@@ -8,6 +8,8 @@
 char pcTestPFLAU[] = "$PFLAU,99,1,2,0,3,-63,4,-5793,2147483646,*XX";
 char pcTestPFLAA[] = "$PFLAA,3,-19999999,19999999,-32767,1,ABCD6969,359,xxxxx,32500,-32.7,C,*XX";
 char pcTestPFLAE[] = "$PFLAE,A,3,120,LOLOLOL69,*XX";
+char pcTestPFLAV[] = "$PFLAV,A,1.23,4.56,*XX";
+char pcTestGPRMC[] = "$GPRMC,170102.69,A,1.069,E,57.4659,N,69.5,269.42,080424,,,,,*XX";
 
 uint32_t lCallsPFLAU = 0;
 uint32_t lCallsPFLAA = 0;
@@ -46,6 +48,8 @@ int main()
     Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAU), sizeof(pcTestPFLAU));
     Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAA), sizeof(pcTestPFLAA));
     Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAE), sizeof(pcTestPFLAE));
+    Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestPFLAV), sizeof(pcTestPFLAV));
+    Flarm_RXProcess(&sdcFlarm, nmea_xorify(pcTestGPRMC), sizeof(pcTestGPRMC));
     
 /*    FILE *file = fopen("flarmdata.log", "r");
 
@@ -62,8 +66,8 @@ int main()
     ASSERT_EQUAL(1, lCallsPFLAU, "PFLAU count correct");
     ASSERT_EQUAL(1, lCallsPFLAA, "PFLAA count correct");
     ASSERT_EQUAL(1, lCallsPFLAE, "PFLAE count correct");
-    ASSERT_EQUAL(0, lCallsPFLAV, "PFLAV count correct");
-    ASSERT_EQUAL(0, lCallsGPRMC, "GPRMC count correct");
+    ASSERT_EQUAL(1, lCallsPFLAV, "PFLAV count correct");
+    ASSERT_EQUAL(1, lCallsGPRMC, "GPRMC count correct");
     ASSERT_EQUAL(0, lCallsGPGGA, "GPGGA count correct");
     ASSERT_EQUAL(0, lCallsGPGSA, "GPGSA count correct");
     ASSERT_EQUAL(0, lCallsPGRMZ, "PGRMZ count correct");
@@ -122,7 +126,7 @@ void _Flarm_PFLAA(uint32_t lID,
     ASSERT_EQUAL(0, strcmp(pcID, "ABCD6969"), "FLARM ID OK");
     ASSERT_EQUAL(359, nTrack, "Track OK");
     ASSERT_EQUAL(32500, nGroundSpeed, "Ground Speed OK");
-    ASSERT_EQUAL(-32.7f, fltClimbRate, "Climb Rate OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(-32.7f, fltClimbRate), true, "Climb Rate OK");
     ASSERT_EQUAL(0x0C, cAircraftType, "Aircraft Type OK");
 }
 
@@ -141,24 +145,32 @@ void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, uint8_t*
     printf("\nPFLAV\n");
     lCallsPFLAV++;
     ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(1.23, fltHwVersion), true, "HW Version OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(4.56, fltSwVersion), true, "SW Version OK");
+    ASSERT_EQUAL(NULL,pcObstVersion, "Obst Version OK");
 }
 
 void _Flarm_GPRMC(uint32_t lID,
                   float fltTime,
-                  bool bActive,
+                  bool bValid,
                   float fltLatitude,
                   char cLatitudeHemisphere,
                   float fltLongitude,
                   char cLongitudeHemisphere,
                   float fltSpeed,
-                  float fltTrack,
-                  uint32_t lDate,
-                  float fltMagVar,
-                  char cMagVarDirection)
+                  float fltTrack)
 {
     printf("\nGPRMC\n");
     lCallsGPRMC++;
     ASSERT_EQUAL(TEST_FLARM_ID, lID, "ID OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(170102.69, fltTime), true, "Time OK");
+    ASSERT_EQUAL(bValid, true, "Valid OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(1.069, fltLatitude), true, "Latitude OK");
+    ASSERT_EQUAL(cLatitudeHemisphere, 'E', "Latitude Hemisphere OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(57.4659, fltLongitude), true, "Longitude OK");
+    ASSERT_EQUAL(cLongitudeHemisphere, 'N', "Longitude Hemisphere OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(69.5, fltSpeed), true, "Speed OK");
+    ASSERT_EQUAL(FLOAT_EQUAL(269.42, fltTrack), true, "Track OK");
 }
 
 void _Flarm_GPGGA(uint32_t lID,

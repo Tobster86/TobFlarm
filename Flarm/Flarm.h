@@ -87,16 +87,13 @@ extern void _Flarm_PFLAV(uint32_t lID, float fltHwVersion, float fltSwVersion, u
 #ifndef FLARM_GPRMC_DISABLED
 extern void _Flarm_GPRMC(uint32_t lID,
                          float fltTime,
-                         bool bActive,
+                         bool bValid,
                          float fltLatitude,
                          char cLatitudeHemisphere,
                          float fltLongitude,
                          char cLongitudeHemisphere,
                          float fltSpeed,
-                         float fltTrack,
-                         uint32_t lDate,
-                         float fltMagVar,
-                         char cMagVarDirection);
+                         float fltTrack);
 #endif
 
 #ifndef FLARM_GPGGA_DISABLED

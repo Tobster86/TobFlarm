@@ -4,9 +4,12 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 
 uint32_t lTestsFailed = 0;
 uint32_t lTestsPassed = 0;
+
+#define NEAR_ENOUGH 0.1f
 
 #define ASSERT_EQUAL(expected, actual, ...) \
     do { \
@@ -21,6 +24,8 @@ uint32_t lTestsPassed = 0;
         printf("    "__VA_ARGS__); \
         printf(", file %s, line %d\n", __FILE__, __LINE__); \
     } while (0)
+
+#define FLOAT_EQUAL(expected, actual) (fabs((expected) - (actual)) <= NEAR_ENOUGH)
 
 #define PRINT_TEST_RESULTS \
     do { \
